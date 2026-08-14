@@ -37,7 +37,7 @@ A **desktop pet** plugin for DeepSeek Harness (DSH): import Codex-style **sprite
 ### Option 1: pnpm (recommended)
 
 ```sh
-dsh plugin add dsh-codex-pet
+dsh plugin --profile web add dsh-codex-pet
 ```
 
 ### Option 2: GitHub clone

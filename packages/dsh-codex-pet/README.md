@@ -5,7 +5,7 @@ A **desktop pet** plugin for [DeepSeek Harness (DSH)](https://github.com/deepsee
 ## Install
 
 ```sh
-dsh plugin add dsh-codex-pet
+dsh plugin --profile web add dsh-codex-pet
 ```
 
 Then restart the DSH Web GUI (host-side change) and refresh the page. Upload your own pet zip (see the asset format below) in **Settings → Pet Library**.

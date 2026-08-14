@@ -37,7 +37,7 @@ DeepSeek Harness（DSH）桌面宠物插件：导入/上传 codex 风格的**精
 ### 方式一：pnpm（推荐）
 
 ```sh
-dsh plugin add dsh-codex-pet
+dsh plugin --profile web add dsh-codex-pet
 ```
 
 ### 方式二：GitHub clone
