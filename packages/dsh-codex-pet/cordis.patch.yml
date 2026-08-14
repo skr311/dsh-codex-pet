@@ -1,0 +1,9 @@
+# dsh-codex-pet 宿主半 bundle patch（web profile 组合层）
+# 语义：向 profile 组合树插入 dsh-pet 插件行；客户端半由 dsh.client 声明驱动，
+# dsh-client-modules 扫描本行加载器条目并自动把 /plugins/dsh-codex-pet/client.js 纳入 __DSH_BOOT__ 图。
+- insert:
+    - id: dsh-codex-pet
+      name: 'dsh-codex-pet'
+      config:
+        petsRoot: !!js dshHomePath('pets')
+        maxUploadBytes: 52428800

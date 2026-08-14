@@ -1,0 +1,55 @@
+{
+  "name": "dsh-codex-pet",
+  "version": "0.1.0",
+  "description": "A desktop pet plugin for DeepSeek Harness (DSH): import Codex-style sprite-sheet pets and render them in the DSH Web GUI as a floating shell.overlay, with a pet library, interactions, and Agent-state linkage. / DSH 桌面宠物插件：导入精灵图序列帧宠物并在 Web GUI 悬浮渲染。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "desktop-pet",
+    "sprite",
+    "pet",
+    "codex",
+    "webui",
+    "plugin"
+  ],
+  "license": "MIT",
+  "author": "skr311",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skr311/dsh-codex-pet.git"
+  },
+  "homepage": "https://github.com/skr311/dsh-codex-pet#readme",
+  "bugs": {
+    "url": "https://github.com/skr311/dsh-codex-pet/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
