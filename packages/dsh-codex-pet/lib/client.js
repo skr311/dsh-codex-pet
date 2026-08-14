@@ -385,7 +385,7 @@ window.__ModuleLoader__.load({
             background: "var(--dsw-specific-menu, #ffffff)",
             color: "var(--dsw-alias-label-tertiary, #666)",
             border: "1px solid var(--dsw-alias-border-l2, rgba(0,0,0,0.1))",
-            font: "12px/1.6 var(--dsw-font-sans, system-ui, sans-serif)",
+            font: "12px/1.6 var(--dsw-font-family, system-ui, sans-serif)",
           },
         }, "🐾 还没有宠物 · 到设置导入");
       }
@@ -398,25 +398,25 @@ window.__ModuleLoader__.load({
     var BTN = {
       padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontSize: 12, lineHeight: 1.4,
       border: "1px solid var(--dsw-alias-border-l2, rgba(0,0,0,0.15))",
-      background: "var(--dsw-specific-field, #ffffff)",
+      background: "var(--dsw-specific-input-major, #ffffff)",
       color: "var(--dsw-alias-label-primary, #111111)",
     };
     var BTN_SMALL = {
       padding: "3px 8px", borderRadius: 6, cursor: "pointer", fontSize: 11, lineHeight: 1.4,
       border: "1px solid var(--dsw-alias-border-l2, rgba(0,0,0,0.15))",
-      background: "var(--dsw-specific-field, #ffffff)",
+      background: "var(--dsw-specific-input-major, #ffffff)",
       color: "var(--dsw-alias-label-primary, #111111)",
     };
     var BTN_DANGER = {
       padding: "3px 8px", borderRadius: 6, cursor: "pointer", fontSize: 11, lineHeight: 1.4,
-      border: "1px solid var(--dsw-alias-danger-border, rgba(220,38,38,0.35))",
+      border: "1px solid var(--dsw-alias-state-error-primary, #dc2626)",
       background: "transparent",
-      color: "var(--dsw-alias-danger, #dc2626)",
+      color: "var(--dsw-alias-state-error-primary, #dc2626)",
     };
     var INPUT = {
       flex: 1, minWidth: 0, padding: "6px 10px", borderRadius: 8, fontSize: 12, lineHeight: 1.4,
       border: "1px solid var(--dsw-alias-border-l2, rgba(0,0,0,0.15))",
-      background: "var(--dsw-specific-field, #ffffff)",
+      background: "var(--dsw-specific-input-major, #ffffff)",
       color: "var(--dsw-alias-label-primary, #111111)",
       outline: "none",
     };
@@ -542,7 +542,7 @@ window.__ModuleLoader__.load({
           ),
           react.createElement("div", { style: { display: "flex", gap: 6, alignItems: "center" } },
             p.id === active
-              ? react.createElement("span", { style: { fontSize: 11, color: "var(--dsw-alias-success, #16a34a)", fontWeight: 600 } }, "● 启用中")
+              ? react.createElement("span", { style: { fontSize: 11, color: "var(--dsw-alias-state-success-primary, #16a34a)", fontWeight: 600 } }, "● 启用中")
               : react.createElement("button", { onClick: function () { onSetActive(p.id); }, disabled: !!busy, style: BTN_SMALL }, "启用"),
             react.createElement("button", { onClick: function () { onRemove(p.id); }, disabled: !!busy, style: BTN_DANGER }, "删除")
           )
@@ -567,7 +567,7 @@ window.__ModuleLoader__.load({
               setScaleValue(v);   // 实时推给浮层预览
               persistScale(v);    // 防抖写宿主持久化
             },
-            style: { flex: 1, minWidth: 0, accentColor: "var(--dsw-alias-accent, #0b93f6)" },
+            style: { flex: 1, minWidth: 0, accentColor: "var(--dsw-alias-brand-primary, #0b93f6)" },
           }),
           react.createElement("span", { style: { fontSize: 12, color: "var(--dsw-alias-label-tertiary, #888)", minWidth: 44, textAlign: "right", flex: "none" } }, Math.round(scale * 100) + "%")
         ),
@@ -588,7 +588,7 @@ window.__ModuleLoader__.load({
               }, "停用宠物")
             : null
         ),
-        error ? react.createElement("div", { style: { fontSize: 12, color: "var(--dsw-alias-danger, #dc2626)", marginBottom: 8 } }, String(error)) : null,
+        error ? react.createElement("div", { style: { fontSize: 12, color: "var(--dsw-alias-state-error-primary, #dc2626)", marginBottom: 8 } }, String(error)) : null,
         state === "loading" && list.length === 0
           ? react.createElement("div", { style: { fontSize: 12, color: "var(--dsw-alias-label-tertiary, #888)" } }, "加载中…")
           : list.length === 0
