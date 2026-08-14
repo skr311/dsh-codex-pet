@@ -1,0 +1,27 @@
+# Changelog
+
+本项目所有重要变更都会记录在此。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+
+## [Unreleased]
+
+（暂无）
+
+## [0.1.0] - 2026-08-14
+
+首个发布版 🐾
+
+### 新增
+
+- 精灵图序列帧播放（格式 A：单 WebP、逐帧毫秒时长、行=动画：idle/running/waiting/review/failed/移动/挥手/跳跃）。
+- 悬浮浮层：拖拽（视口钳制 + 位置持久化）、点击挥手、空闲随机小动作。
+- 图库管理页（设置 → 宠物图库）：zip 上传 / URL 导入 / 启用 / 停用 / 删除 / 首帧预览。
+- Agent 状态联动：工作中→跑动（常驻）；审批/提问→等待、任务完成→得意、任务失败→沮丧（脉冲一次）。
+- 深/浅主题自适应（全部 `--dsw-*` 令牌）。
+- 测试：核心 16 项 + 路由 10 项（零依赖，运行时合成 WebP）。
+
+### 打包 / 发布
+
+- npm 包 `dsh-codex-pet@0.1.0` 已发布。
+- GitHub tag `v0.1.0` + Release。
+
+[0.1.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.1.0
