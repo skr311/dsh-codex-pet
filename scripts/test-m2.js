@@ -88,6 +88,27 @@ ok("setScale 非数字 -> ASSET_INVALID", eScale2 && eScale2.code === ERR.ASSET_
 await lib.remove("sample-pet");
 ok("remove 后 list 为空", (await lib.list()).length === 0);
 
+// 10b) 兼容"直接压缩宠物文件夹"的 zip（含裸目录条目 tlenna-hd/）——EEXIST 回归
+const folderZip = zipSync({
+  "tlenna-hd/": new Uint8Array(0),
+  "tlenna-hd/pet.json": new TextEncoder().encode(JSON.stringify({ ...petJson, id: "tlenna-hd", displayName: "Tlenna HD" })),
+  "tlenna-hd/spritesheet.webp": new Uint8Array(sheet),
+});
+const metaF = await lib.importZip(folderZip);
+ok("文件夹包裹 zip（含目录条目）导入成功", !!metaF && metaF.id === "tlenna-hd", metaF && metaF.id);
+
+// 10c) 混合 zip：根目录文件 + 裸目录条目
+const mixedZip = zipSync({
+  "sub/": new Uint8Array(0),
+  "pet.json": new TextEncoder().encode(JSON.stringify({ ...petJson, id: "mixed-pet", displayName: "Mixed" })),
+  "spritesheet.webp": new Uint8Array(sheet),
+});
+const metaM = await lib.importZip(mixedZip);
+ok("混合 zip（根文件 + 目录条目）导入成功", !!metaM && metaM.id === "mixed-pet", metaM && metaM.id);
+await lib.remove("tlenna-hd");
+await lib.remove("mixed-pet");
+ok("10b/10c 清理后 list 为空", (await lib.list()).length === 0);
+
 // 11) URL 导入（起本地 http 服务供 zip）
 import { createServer } from "node:http";
 const server = createServer((req, res) => {

@@ -119,13 +119,19 @@ export function normalizeZipEntries(entries) {
   if (names.length === 0) return {};
   const top = (n) => n.split("/")[0];
   const tops = new Set(names.map(top));
-  if (tops.size === 1 && !names.includes([...tops][0] + "/") && names.some((n) => n.includes("/"))) {
-    const prefix = [...tops][0] + "/";
-    const out = {};
-    for (const [k, v] of Object.entries(entries)) out[k.startsWith(prefix) ? k.slice(prefix.length) : k] = v;
-    return out;
+  if (tops.size !== 1) return entries;
+  const prefix = [...tops][0] + "/";
+  // 仅当顶层目录内确实有内容（前缀后有文件）才扁平化；兼容"直接压缩宠物文件夹"的 zip
+  // （含 folder/ 目录条目 + folder/... 文件）。同时丢弃目录条目（不写成空文件）。
+  if (!names.some((n) => n.startsWith(prefix) && n.length > prefix.length)) return entries;
+  const out = {};
+  for (const [k, v] of Object.entries(entries)) {
+    if (!k.startsWith(prefix)) { out[k] = v; continue; }
+    const key = k.slice(prefix.length);
+    if (key === "" || key.endsWith("/")) continue; // 目录条目：由文件写入时的递归 mkdir 创建
+    out[key] = v;
   }
-  return entries;
+  return out;
 }
 /** 宠物图库。 */
 export class PetLibrary {
@@ -216,6 +222,7 @@ export class PetLibrary {
     try {
       for (const [n, bytes] of Object.entries(flat)) {
         if (!(bytes instanceof Uint8Array)) continue;
+        if (n === "" || n.endsWith("/")) continue; // 目录条目：文件写入时的递归 mkdir 会创建，无需也绝不能写成文件
         const safe = resolveSafe(this.root, "." + meta.id + ".tmp", n);
         await mkdir(dirname(safe), { recursive: true });
         await writeFile(safe, bytes);
