@@ -3,11 +3,12 @@
  *
  * 路由：
  *   GET  /api/pets/health      健康检查
- *   GET  /api/pets             宠物列表 + 当前启用
+ *   GET  /api/pets             宠物列表 + 当前启用 + 全局大小
  *   POST /api/pets/upload      zip 上传（raw body，大小受限）
  *   POST /api/pets/from-url    URL 下载导入（JSON {url}）
  *   POST /api/pets/remove      删除（JSON {id}）
  *   GET/POST /api/pets/active  读取/设置启用宠物
+ *   POST /api/pets/scale       设置全局宠物大小（JSON {scale}，0.5–2.0）
  *   GET  /pet-assets/<id>/<path>  静态资产（安全解析）
  *
  * 遵循开发规范：ctx.effect 注册 + disposer 清理、JSON-only 响应、错误码化。
@@ -93,8 +94,8 @@ export function apply(ctx, cfg) {
       kind: "exact", path: "/api/pets",
       handler: async (_req, res) => {
         try {
-          const [pets, active] = await Promise.all([library.list(), library.getActive()]);
-          json(res, 200, { ok: true, pets, active });
+          const [pets, active, scale] = await Promise.all([library.list(), library.getActive(), library.getScale()]);
+          json(res, 200, { ok: true, pets, active, scale });
         } catch (e) { fail(res, e); }
       },
     }));
@@ -146,6 +147,17 @@ export function apply(ctx, cfg) {
           const id = typeof (body && body.id) === "string" ? body.id : null;
           await library.setActive(id);
           json(res, 200, { ok: true, id });
+        } catch (e) { fail(res, e); }
+      },
+    }));
+
+    offs.push(webServer.register({
+      kind: "exact", path: "/api/pets/scale",
+      handler: async (req, res) => {
+        try {
+          const body = await readJsonBody(req, maxBytes);
+          const scale = typeof (body && body.scale) === "number" ? body.scale : NaN;
+          json(res, 200, await library.setScale(scale));
         } catch (e) { fail(res, e); }
       },
     }));

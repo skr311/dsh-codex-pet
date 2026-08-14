@@ -49,6 +49,23 @@ window.__ModuleLoader__.load({
       };
     }
 
+    // ---- 全局宠物大小（scale）共享状态：图库页滑块实时生效，浮层订阅 ----
+    var scaleValue = 1;
+    var scaleListeners = [];
+    function getScaleValue() { return scaleValue; }
+    function setScaleValue(v) {
+      if (typeof v !== "number" || !isFinite(v) || v === scaleValue) return;
+      scaleValue = v;
+      for (var i = 0; i < scaleListeners.length; i++) { try { scaleListeners[i](v); } catch (e) {} }
+    }
+    function onScaleChange(f) {
+      scaleListeners.push(f);
+      return function () {
+        var i = scaleListeners.indexOf(f);
+        if (i >= 0) scaleListeners.splice(i, 1);
+      };
+    }
+
     // 构建帧序列：[[frameIndex, ms], ...]（帧索引 = 行×列数 + 列）
     function buildFrames(anim, columns) {
       var list = [];
@@ -83,6 +100,10 @@ window.__ModuleLoader__.load({
       var rows = frame ? frame.rows : 9;
       var cellW = frame ? Math.round(frame.width / frame.columns) : 192;
       var cellH = frame ? Math.round(frame.height / frame.rows) : 208;
+      // 全局用户缩放：对帧单元整体等比放大（默认 1.0）
+      var scale = typeof props.scale === "number" && isFinite(props.scale) ? props.scale : 1;
+      var w = Math.max(1, Math.round(cellW * scale));
+      var h = Math.max(1, Math.round(cellH * scale));
 
       // 可用动画表：缺省表 + 行数足够时附加扩展
       var table = useMemo(function () {
@@ -236,12 +257,12 @@ window.__ModuleLoader__.load({
         if (!d) return;
         if (Math.abs(e.clientX - d.sx) + Math.abs(e.clientY - d.sy) > 6) movedRef.current = true;
         var vw = window.innerWidth, vh = window.innerHeight;
-        var x = Math.min(Math.max(e.clientX - d.dx, 0), vw - cellW);
-        var y = Math.min(Math.max(e.clientY - d.dy, 0), vh - cellH - 8);
+        var x = Math.min(Math.max(e.clientX - d.dx, 0), vw - w);
+        var y = Math.min(Math.max(e.clientY - d.dy, 0), vh - h - 8);
         setPos({ x: x, y: y });
         try { window.localStorage && window.localStorage.setItem("dsh-pet:pos", JSON.stringify({ x: x, y: y })); } catch (e) {}
         setAnim(e.movementX < 0 ? "running-left" : "running-right");
-      }, [cellW, cellH]);
+      }, [w, h]);
       var onPointerUp = useCallback(function () {
         dragRef.current = null;
         setAnim("idle");
@@ -257,14 +278,35 @@ window.__ModuleLoader__.load({
       var pos = _p[0];
       var setPos = _p[1];
 
+      // 缩放后若宠物越出视口，钳制回屏并回写偏好（保持 left/top 锚点；默认右下角定位随宽高自然向左上生长，无需钳制）
+      useEffect(function () {
+        if (pos.x == null || pos.y == null) return;
+        var cx = Math.min(Math.max(pos.x, 0), Math.max(0, window.innerWidth - w));
+        var cy = Math.min(Math.max(pos.y, 0), Math.max(0, window.innerHeight - h - 8));
+        if (cx !== pos.x || cy !== pos.y) {
+          setPos({ x: cx, y: cy });
+          try { window.localStorage && window.localStorage.setItem("dsh-pet:pos", JSON.stringify({ x: cx, y: cy })); } catch (e) {}
+        }
+      }, [w, h]);
+
       var isIdle = anim === "idle";
+      // 默认（未拖拽过）时右下角锚定 (24,24)，随缩放向左上生长；拖拽后走持久化 left/top
+      var effX, effY;
+      if (pos.x != null && pos.y != null) { effX = pos.x; effY = pos.y; }
+      else {
+        effX = Math.max(0, window.innerWidth - 24 - w);
+        effY = Math.max(0, window.innerHeight - 24 - h);
+      }
       var baseStyle = {
         position: "fixed", zIndex: 9999,
-        left: pos.x != null ? pos.x + "px" : undefined,
-        top: pos.y != null ? pos.y + "px" : undefined,
-        right: pos.x == null ? 24 : undefined,
-        bottom: pos.x == null ? 24 : undefined,
+        left: effX + "px", top: effY + "px",
+        // 缩放用 CSS transform 实现：贴图/帧切片保持自然尺寸（帧动画完美瞬切），
+        // 仅 transform 过渡，整个内容等比缩放——避免 width/height/background-size 与
+        // background-position 过渡不同步导致的横向抖动/把相邻帧横着刷出来
         width: cellW + "px", height: cellH + "px",
+        transform: "scale(" + scale + ")",
+        transformOrigin: "0 0",
+        transition: "transform 0.18s ease",
         pointerEvents: "auto", cursor: isIdle ? "grab" : "grabbing",
         touchAction: "none", userSelect: "none",
         backgroundImage: "url(" + sheetUrl + ")",
@@ -296,6 +338,9 @@ window.__ModuleLoader__.load({
       var _p = useState(null);
       var pet = _p[0];
       var setPet = _p[1];
+      var _sc = useState(getScaleValue());
+      var scale = _sc[0];
+      var setScaleState = _sc[1];
 
       var load = useCallback(function () {
         return fetch("/api/pets", { signal: AbortSignal.timeout(8000) })
@@ -306,6 +351,10 @@ window.__ModuleLoader__.load({
             var active = list.find(function (p) { return p.id === body.active; }) || null;
             setPet(active);
             setState(active ? "pet" : (list.length === 0 ? "empty" : "none"));
+            if (typeof body.scale === "number") {
+              scaleValue = body.scale;   // 同步模块级（供图库页读取）
+              setScaleState(body.scale); // 本地状态
+            }
           })
           .catch(function () { setState("err"); });
       }, []);
@@ -322,7 +371,12 @@ window.__ModuleLoader__.load({
         return function () { cancelled = true; off(); };
       }, [load]);
 
-      if (state === "pet" && pet) return react.createElement(PetPlayer, { pet: pet, sessions: sessions });
+      // 图库页拖动滑块 → 模块级 scale 实时推给浮层预览
+      useEffect(function () {
+        return onScaleChange(setScaleState);
+      }, []);
+
+      if (state === "pet" && pet) return react.createElement(PetPlayer, { pet: pet, sessions: sessions, scale: scale });
       if (state === "empty") {
         return react.createElement("div", {
           style: {
@@ -387,6 +441,10 @@ window.__ModuleLoader__.load({
       var busy = _b[0];
       var setBusy = _b[1];
       var fileRef = useRef(null);
+      var _sc = useState(1);
+      var scale = _sc[0];
+      var setScale = _sc[1];
+      var scaleTimer = useRef(null);
 
       var refresh = useCallback(function () {
         return fetch("/api/pets", { signal: AbortSignal.timeout(8000) })
@@ -395,6 +453,7 @@ window.__ModuleLoader__.load({
             if (!body || !body.ok) throw new Error("列表获取失败");
             setList(body.pets || []);
             setActiveId(body.active || null);
+            if (typeof body.scale === "number") setScale(body.scale);
             setError(null);
             setState("ready");
           })
@@ -431,6 +490,18 @@ window.__ModuleLoader__.load({
       function onRemove(id) {
         if (window.confirm("删除宠物「" + id + "」？")) act("POST", "/api/pets/remove", JSON.stringify({ id: id }));
       }
+
+      // 滑块持久化：拖动停止 300ms 后写一次宿主（避免每步都打接口）
+      function persistScale(v) {
+        if (scaleTimer.current) clearTimeout(scaleTimer.current);
+        scaleTimer.current = setTimeout(function () {
+          scaleTimer.current = null;
+          act("POST", "/api/pets/scale", JSON.stringify({ scale: v }));
+        }, 300);
+      }
+      useEffect(function () {
+        return function () { if (scaleTimer.current) clearTimeout(scaleTimer.current); };
+      }, []);
 
       function previewNode(p) {
         var sheet = "/pet-assets/" + p.id + "/" + (p.spritesheetPath || "spritesheet.webp");
@@ -479,6 +550,27 @@ window.__ModuleLoader__.load({
       });
 
       return react.createElement("div", { style: { padding: "2px 0 8px" } },
+        react.createElement("div", {
+          style: {
+            display: "flex", gap: 12, alignItems: "center", marginBottom: 12, padding: "10px 12px",
+            borderRadius: 12, background: "var(--dsw-alias-fill-l2, rgba(0,0,0,0.03))",
+            border: "1px solid var(--dsw-alias-border-l2, rgba(0,0,0,0.06))",
+          },
+        },
+          react.createElement("span", { style: { fontSize: 12, color: "var(--dsw-alias-label-primary, #111)", flex: "none" } }, "宠物大小"),
+          react.createElement("input", {
+            type: "range", min: 50, max: 200, step: 5,
+            value: Math.round(scale * 100),
+            onChange: function (e) {
+              var v = Number(e.target.value) / 100;
+              setScale(v);
+              setScaleValue(v);   // 实时推给浮层预览
+              persistScale(v);    // 防抖写宿主持久化
+            },
+            style: { flex: 1, minWidth: 0, accentColor: "var(--dsw-alias-accent, #0b93f6)" },
+          }),
+          react.createElement("span", { style: { fontSize: 12, color: "var(--dsw-alias-label-tertiary, #888)", minWidth: 44, textAlign: "right", flex: "none" } }, Math.round(scale * 100) + "%")
+        ),
         react.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, alignItems: "center" } },
           react.createElement("button", { onClick: function () { if (fileRef.current) fileRef.current.click(); }, disabled: !!busy, style: BTN }, "上传 zip"),
           react.createElement("input", { type: "file", accept: ".zip", ref: fileRef, style: { display: "none" }, onChange: onUpload }),

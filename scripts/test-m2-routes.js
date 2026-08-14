@@ -76,7 +76,7 @@ async function driveAsset(path) {
 }
 
 // 0) 路由注册数量
-ok("路由已注册 7 条", routes.size === 7, String(routes.size));
+ok("路由已注册 8 条", routes.size === 8, String(routes.size));
 
 // 1) health
 const h = await drive("GET", "/api/pets/health");
@@ -90,6 +90,15 @@ ok("upload 200 id=sample-pet", up.status === 200 && up.json && up.json.ok && up.
 // 3) 列表
 const list = await drive("GET", "/api/pets");
 ok("list 1 pet + active", list.json && list.json.ok && list.json.pets.length === 1 && list.json.active === null, JSON.stringify(list.json && { n: list.json.pets.length, active: list.json.active }));
+
+// 3b) 全局宠物大小 scale：默认 1.0 → 设置 1.5 → 列表回读 1.5；越界拒绝
+ok("list 默认 scale 1.0", list.json && list.json.scale === 1, JSON.stringify(list.json && list.json.scale));
+const setSc = await drive("POST", "/api/pets/scale", Buffer.from(JSON.stringify({ scale: 1.5 })));
+ok("set scale 200 ok=1.5", setSc.status === 200 && setSc.json && setSc.json.ok && setSc.json.scale === 1.5, JSON.stringify(setSc.json));
+const listSc = await drive("GET", "/api/pets");
+ok("list 回读 scale 1.5", listSc.json && listSc.json.scale === 1.5, JSON.stringify(listSc.json && listSc.json.scale));
+const badSc = await drive("POST", "/api/pets/scale", Buffer.from(JSON.stringify({ scale: 9.9 })));
+ok("set scale 越界 -> ASSET_INVALID", badSc.status === 400 && badSc.json && badSc.json.error && badSc.json.error.code === "ASSET_INVALID", JSON.stringify(badSc.json && badSc.json.error));
 
 // 4) 资产服务（合成 spritesheet 字节一致）
 const asset = await driveAsset("/pet-assets/sample-pet/spritesheet.webp");
