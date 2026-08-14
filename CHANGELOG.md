@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+（暂无）
+
+## [0.2.2] - 2026-08-14
+
 ### 修复
 
 - 导入兼容「直接压缩宠物文件夹」的 zip（含顶层目录条目 `folder/`）：修复 `写入失败: EEXIST`（`normalizeZipEntries` 去公共前缀时不再被裸目录条目拦住，写入时跳过目录条目）。新增文件夹包裹/混合 zip 回归测试（核心 23 项 + 路由 14 项全 PASS）。
@@ -41,6 +45,7 @@
 - npm 包 `dsh-codex-pet@0.1.0` 已发布。
 - GitHub tag `v0.1.0` + Release。
 
+[0.2.2]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.2
 [0.2.1]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.1
 [0.2.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.0
 [0.1.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.1.0
