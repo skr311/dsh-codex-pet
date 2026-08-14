@@ -31,6 +31,10 @@ export const ID_RE = /^[A-Za-z0-9._-]+$/;
 const FRAME_W = 192;
 const FRAME_H = 208;
 
+/** 全局宠物大小上下限（设置页滑块 50%~200%）。 */
+export const SCALE_MIN = 0.5;
+export const SCALE_MAX = 2.0;
+
 /** 构造 AssetError，携带错误码。 */
 export class AssetError extends Error {
   constructor(code, message, cause) {
@@ -277,5 +281,26 @@ export class PetLibrary {
     } catch {
       return null;
     }
+  }
+
+  /** 读取全局宠物大小（默认 1.0）。 */
+  async getScale() {
+    try {
+      const raw = await readFile(join(this.root, ".prefs.json"), "utf8");
+      const parsed = JSON.parse(raw);
+      const v = typeof parsed.scale === "number" && Number.isFinite(parsed.scale) ? parsed.scale : 1;
+      return v >= SCALE_MIN && v <= SCALE_MAX ? v : 1;
+    } catch {
+      return 1;
+    }
+  }
+
+  /** 设置全局宠物大小（0.5–2.0），写入 .prefs.json。 */
+  async setScale(v) {
+    if (typeof v !== "number" || !Number.isFinite(v) || v < SCALE_MIN || v > SCALE_MAX) {
+      throw new AssetError(ERR.ASSET_INVALID, "scale 非法（需在 " + SCALE_MIN + "–" + SCALE_MAX + " 之间）");
+    }
+    await writeFile(join(this.root, ".prefs.json"), JSON.stringify({ scale: v }), "utf8");
+    return { ok: true, scale: v };
   }
 }

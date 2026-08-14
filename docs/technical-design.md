@@ -1,6 +1,6 @@
 # dsh-codex-pet —— 详细技术设计文档
 
-> 版本：v0.1（与 requirements.md v0.1 配套，已评审）
+> 版本：v0.2（与 requirements.md v0.2 配套；新增全局宠物大小设置）
 > 关联：开发需求 [requirements.md](requirements.md) · 开发规范 [development-spec.md](development-spec.md) ·
 > 资产规范 [asset-spec.md](asset-spec.md) · 执行步骤 [execution-steps.md](execution-steps.md)
 > DSH 版本：@deepseek-ai/dsh 0.1.0-rc.6
@@ -96,6 +96,8 @@ path/to/dsh-codex-pet\          (workspace 根)
 | `setActive(id|null)` | id | `{ok}` | 设置当前启用宠物（全局唯一） |
 | `getManifest(id)` | id | `PetManifest` | 读取并校验 manifest |
 | `assetUrl(id, file)` | id, file | url 字符串 | 生成资产访问 URL（静态路由） |
+| `getScale()` | — | `number` | 读取全局宠物大小（默认 1.0） |
+| `setScale(v)` | v | `{ok, scale}` | 设置全局宠物大小（校验 0.5–2.0，写入 `.prefs.json`） |
 
 `PetMeta`：`{ id, name, author?, format, frame, animations: string[], scale, source: 'upload'|'url', sizeBytes, importedAt, active }`
 `PetManifest`：见 §5 资产包规范。
@@ -103,10 +105,11 @@ path/to/dsh-codex-pet\          (workspace 根)
 ### 3.3 存储布局（磁盘）
 ```
 $DSH_HOME/pets/
-├── index.json                 # 索引：PetMeta[] + active 指向
+├── .active.json               # 当前启用宠物 id（实际实现）
+├── .prefs.json                # 用户偏好：{ "scale": 1.0 } 全局宠物大小
 └── <pet-id>/
-    ├── manifest.json
-    └── sprites/…
+    ├── pet.json               # 资产 manifest（实际实现，非 manifest.json）
+    └── spritesheet.webp
 ```
 - pet-id 由 manifest.id 规范化（`[a-z0-9-]`，重复导入按"更新覆盖"策略并提示）。
 - 资产访问：静态 prefix 路由 `/pet-assets/<pet-id>/<path>` 由 webServer 注册，仅放行 `pets/<pet-id>` 目录内文件（防路径穿越）。
@@ -119,6 +122,7 @@ $DSH_HOME/pets/
 | `GET /api/pets` | exact | 列表 |
 | `POST /api/pets/remove` | exact | `{id}` |
 | `POST /api/pets/active` | exact | `{id|null}` |
+| `POST /api/pets/scale` | exact | `{scale}`；设置全局宠物大小（0.5–2.0） |
 | `GET /pet-assets/<pet-id>/<path>` | prefix | 资产静态服务 |
 
 ### 3.5 校验与安全
@@ -183,6 +187,7 @@ ctx.slots.inject('settings.section', () => ctx.slots.register(
 ### 4.3 序列帧播放器 `PetPlayer.tsx`
 - 渲染对象：单张 WebP spritesheet（格式 A）。帧单元 192×208、8 列；帧索引 = 行×8+列；行 = 动画（行数按 [asset-spec.md](asset-spec.md) §5 策略：`frame.rows` → 高度推断 → 默认 9）。
 - 播放：单 `<img>` + `background-position` 切片，按**逐帧 ms 时长**推进（[asset-spec.md](asset-spec.md) §2.3），不依赖全局 fps；**隐藏或未启用时停止定时器**（省 CPU）。
+- **用户缩放**：全局 `scale`（默认 1.0）用 CSS `transform: scale()` 实现——贴图/帧切片保持自然尺寸（帧动画仍完美瞬切），仅 `transform` 带 0.18s 过渡，整个内容等比缩放。**注意不要**用 width/height/background-size 过渡（它们与瞬跳的 background-position 不同步会导致横向抖动/把相邻帧横着刷出来）。位置以视觉尺寸做视口钳制（left/top 锚点），默认右下角锚定 (24,24)。
 - 动画组切换：`usePetState` 输出语义状态 → 按 [asset-spec.md](asset-spec.md) §2.4 映射动画名（idle/running/waiting/review/failed/move/wave/jump）；缺失回退 idle。
 - 动作动画（非 idle）：按 §2.3 结构播放主序列 1-3 次后落回 idle。
 - 定时器一律走 client 的 timer 服务（`inject: ['timer']`），随生命周期清理，不产生全局定时器。
@@ -196,6 +201,7 @@ ctx.slots.inject('settings.section', () => ctx.slots.register(
 ### 4.5 偏好持久化（遵循 DSH 规范）
 - 宠物位置/显隐/当前启用 id：写入宿主 settings 文档（`settings.section` 页面可改），重启保留；
 - 不走 localStorage 明文散落（与 DSH 现有偏好机制一致）。
+- 全局宠物大小 `scale`：宿主侧 `.prefs.json`（`POST /api/pets/scale` 写入），跨重启保留；拖拽位置仍走 `localStorage('dsh-pet:pos')`（M5 已定）。
 
 ### 4.6 Agent 状态联动（含降级）
 - 目标：空闲/工作(思考)/等待/完成/失败 → idle/running/waiting/review/failed（见 [asset-spec.md](asset-spec.md) §2.4）。
@@ -275,3 +281,10 @@ pet.zip
 | M5 | 状态联动 + 持久化 + 收尾 | 工作/空闲切换动画；重启保留偏好 |
 
 **验收主线（端到端）**：上传/URL 导入一只宠物 → 浮层动画播放 → 拖拽/点击/随机动作 → 图库管理 → Agent 工作/空闲切换动画 → 重启 DSH 后宠物与偏好仍在 → 深色/浅色主题下样式正常。
+
+## 8. 变更记录
+
+| 版本 | 日期 | 说明 |
+| --- | --- | --- |
+| v0.2 | 需求变更 | 新增全局宠物大小设置：宿主 `.prefs.json` + `POST /api/pets/scale`、客户端统一缩放渲染 + 越界钳制 + 过渡动画 |
+| v0.1 | 文档整理 | 初版：双半架构、宿主/客户端设计、路由、状态联动 |

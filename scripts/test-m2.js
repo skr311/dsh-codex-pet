@@ -74,6 +74,16 @@ ok("setActive/getActive", (await lib.getActive()) === "sample-pet");
 const e6 = await rejects(lib.setActive("nope"));
 ok("setActive 不存在 -> ASSET_FILE_MISSING", e6 && e6.code === ERR.ASSET_FILE_MISSING, e6 && e6.code);
 
+// 9b) 全局宠物大小 scale 设置/读取
+const s0 = await lib.getScale();
+ok("getScale 默认 1.0", s0 === 1, String(s0));
+await lib.setScale(1.5);
+ok("setScale/getScale 1.5", (await lib.getScale()) === 1.5, String(await lib.getScale()));
+const eScale = await rejects(lib.setScale(5));
+ok("setScale 越界 -> ASSET_INVALID", eScale && eScale.code === ERR.ASSET_INVALID, eScale && eScale.code);
+const eScale2 = await rejects(lib.setScale("big"));
+ok("setScale 非数字 -> ASSET_INVALID", eScale2 && eScale2.code === ERR.ASSET_INVALID, eScale2 && eScale2.code);
+
 // 10) remove
 await lib.remove("sample-pet");
 ok("remove 后 list 为空", (await lib.list()).length === 0);

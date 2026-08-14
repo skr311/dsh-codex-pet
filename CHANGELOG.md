@@ -6,6 +6,14 @@
 
 （暂无）
 
+## [0.2.0] - 2026-08-14
+
+### 新增
+
+- 设置中调整宠物大小：全局缩放滑块（50%~200%，步进 5%），宿主侧 `.prefs.json` 持久化、跨重启保留，缩放带平滑过渡（CSS transform，避免横向抖动/串帧）。
+- 新接口 `POST /api/pets/scale`；`GET /api/pets` 返回体新增 `scale` 字段。
+- 测试新增：全局缩放设置/读取/越界拒绝（核心 20 项 + 路由 14 项全 PASS）。
+
 ## [0.1.0] - 2026-08-14
 
 首个发布版 🐾
@@ -24,4 +32,5 @@
 - npm 包 `dsh-codex-pet@0.1.0` 已发布。
 - GitHub tag `v0.1.0` + Release。
 
+[0.2.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.0
 [0.1.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.1.0
