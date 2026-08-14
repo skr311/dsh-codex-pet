@@ -1,6 +1,6 @@
 {
   "name": "dsh-codex-pet",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A desktop pet plugin for DeepSeek Harness (DSH): import Codex-style sprite-sheet pets and render them in the DSH Web GUI as a floating shell.overlay, with a pet library, interactions, and Agent-state linkage. / DSH 桌面宠物插件：导入精灵图序列帧宠物并在 Web GUI 悬浮渲染。",
   "type": "module",
   "main": "lib/index.js",
