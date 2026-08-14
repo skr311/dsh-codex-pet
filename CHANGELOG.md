@@ -6,6 +6,12 @@
 
 （暂无）
 
+## [0.2.1] - 2026-08-14
+
+### 修复
+
+- 修正安装命令：`dsh plugin add dsh-codex-pet` → `dsh plugin --profile web add dsh-codex-pet`（`dsh plugin` 需要必填 `--profile` 参数）；同步更新仓库与 npm 包内 README。
+
 ## [0.2.0] - 2026-08-14
 
 ### 新增
@@ -32,5 +38,6 @@
 - npm 包 `dsh-codex-pet@0.1.0` 已发布。
 - GitHub tag `v0.1.0` + Release。
 
+[0.2.1]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.1
 [0.2.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.0
 [0.1.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.1.0
