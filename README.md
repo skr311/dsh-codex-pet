@@ -6,6 +6,8 @@
 
 DeepSeek Harness（DSH）桌面宠物插件：导入/上传 codex 风格的**精灵图序列帧宠物**，在 DSH Web GUI 以 `shell.overlay` 悬浮浮层渲染，含图库管理、基础交互与 Agent 状态联动。
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm downloads](https://img.shields.io/npm/dm/dsh-codex-pet.svg)](https://www.npmjs.com/package/dsh-codex-pet) [![License: MIT](https://img.shields.io/github/license/skr311/dsh-codex-pet.svg)](LICENSE)
+
 ## 📸 预览
 
 <!-- 截图占位 ①：WebUI 页 —— 宠物浮层显示在 DSH Web GUI 右下角（放一张 1280×800 截图） -->

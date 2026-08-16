@@ -6,6 +6,8 @@
 
 A **desktop pet** plugin for DeepSeek Harness (DSH): import Codex-style **sprite-sheet sequence-frame pets** and render them in the DSH Web GUI as a floating `shell.overlay` — with a pet library manager, basic interactions, and live Agent-state linkage.
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com) [![npm downloads](https://img.shields.io/npm/dm/dsh-codex-pet.svg)](https://www.npmjs.com/package/dsh-codex-pet) [![License: MIT](https://img.shields.io/github/license/skr311/dsh-codex-pet.svg)](LICENSE)
+
 ## 📸 Preview
 
 <!-- Screenshot 1: WebUI — the pet overlay at the bottom-right of the DSH Web GUI (1280×800) -->
