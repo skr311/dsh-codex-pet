@@ -12,6 +12,11 @@
 
 - 宠物**默认初始位置**由右下角改为**左下角（侧边栏边上）**：客户端按 DSH AppFrame 结构实测侧边栏宽度（默认 280，收起 56，可拖 264–420），默认位锚定 = 侧边栏宽 + 16px 间距、底部留 24px；未拖拽前按默认位展示，拖拽后仍走 `localStorage('dsh-pet:pos')` 持久化；空状态提示气泡同步左下角。窗口缩放/侧边栏收展时自动重测。
 
+### 打包 / 发布
+
+- npm 包 `dsh-codex-pet@0.3.0` 已发布。
+- GitHub tag `v0.3.0` + Release。
+
 ## [0.2.2] - 2026-08-14
 
 ### 修复
@@ -19,11 +24,21 @@
 - 导入兼容「直接压缩宠物文件夹」的 zip（含顶层目录条目 `folder/`）：修复 `写入失败: EEXIST`（`normalizeZipEntries` 去公共前缀时不再被裸目录条目拦住，写入时跳过目录条目）。新增文件夹包裹/混合 zip 回归测试（核心 23 项 + 路由 14 项全 PASS）。
 - 修复**夜间模式下按钮/输入框主题失效**：图库页按钮/输入框原先使用 DSH 主题不存在的令牌（`--dsw-specific-field`、`--dsw-alias-danger/success/accent` 等），深色下回退到硬编码白底导致文字难读；改用真实令牌 `--dsw-specific-input-major` / `--dsw-alias-state-error-primary` / `--dsw-alias-state-success-primary` / `--dsw-alias-brand-primary` / `--dsw-font-family`，深浅色自适应。
 
+### 打包 / 发布
+
+- npm 包 `dsh-codex-pet@0.2.2` 已发布。
+- GitHub tag `v0.2.2` + Release。
+
 ## [0.2.1] - 2026-08-14
 
 ### 修复
 
 - 修正安装命令：`dsh plugin add dsh-codex-pet` → `dsh plugin --profile web add dsh-codex-pet`（`dsh plugin` 需要必填 `--profile` 参数）；同步更新仓库与 npm 包内 README。
+
+### 打包 / 发布
+
+- npm 包 `dsh-codex-pet@0.2.1` 已发布。
+- GitHub tag `v0.2.1` + Release。
 
 ## [0.2.0] - 2026-08-14
 
@@ -32,6 +47,11 @@
 - 设置中调整宠物大小：全局缩放滑块（50%~200%，步进 5%），宿主侧 `.prefs.json` 持久化、跨重启保留，缩放带平滑过渡（CSS transform，避免横向抖动/串帧）。
 - 新接口 `POST /api/pets/scale`；`GET /api/pets` 返回体新增 `scale` 字段。
 - 测试新增：全局缩放设置/读取/越界拒绝（核心 20 项 + 路由 14 项全 PASS）。
+
+### 打包 / 发布
+
+- npm 包 `dsh-codex-pet@0.2.0` 已发布。
+- GitHub tag `v0.2.0` + Release。
 
 ## [0.1.0] - 2026-08-14
 
