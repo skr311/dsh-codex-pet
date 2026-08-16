@@ -10,7 +10,7 @@ A **desktop pet** plugin for DeepSeek Harness (DSH): import Codex-style **sprite
 
 ## 📸 Preview
 
-<!-- Screenshot 1: WebUI — the pet overlay at the bottom-right of the DSH Web GUI (1280×800) -->
+<!-- Screenshot 1: WebUI — the pet overlay at the bottom-left of the DSH Web GUI, beside the sidebar (1280×800) -->
 ![](docs/assets/screenshot-webui.png)
 
 <!-- Screenshot 2: Settings — the Pet Library page (list / upload / enable / disable / delete / URL import) -->
@@ -19,7 +19,7 @@ A **desktop pet** plugin for DeepSeek Harness (DSH): import Codex-style **sprite
 ## ✨ Core Features
 
 - **Sprite playback** — single WebP sprite-sheet (Format A), per-frame ms timing, row = animation (`idle` / `running` / `waiting` / `review` / `failed` / move / wave / jump).
-- **Floating overlay** — bottom-right, draggable (viewport-clamped, position persisted), click to wave, idle random antics.
+- **Floating overlay** — bottom-left (beside the sidebar), draggable (viewport-clamped, position persisted), click to wave, idle random antics.
 - **Pet library** (Settings → Pet Library) — zip upload / URL import / enable / disable / delete / first-frame preview.
 - **Agent-state linkage** — subscribes to DSH session state: working → run (persistent); approval/question → waiting (pulse once); task done → happy (pulse once); task failed → sad (pulse once).
 - **Dark/light theme** — all styles use `--dsw-*` theme tokens and adapt to the DSH theme automatically.
@@ -28,7 +28,7 @@ A **desktop pet** plugin for DeepSeek Harness (DSH): import Codex-style **sprite
 
 1. Open the DSH Web GUI (default http://127.0.0.1:3080).
 2. **Settings → Pet Library** → upload / URL-import a pet zip → click **Enable**.
-3. The pet appears at the bottom-right:
+3. The pet appears at the bottom-left (beside the sidebar):
    - **Drag** to move (position auto-saved on release).
    - **Click** to wave.
    - **Agent linkage**: running while the agent works; a brief waiting pose when it needs your input; a brief happy pose on completion; a brief sad pose on failure.

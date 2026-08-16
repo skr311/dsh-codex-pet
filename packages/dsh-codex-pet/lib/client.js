@@ -66,6 +66,27 @@ window.__ModuleLoader__.load({
       };
     }
 
+    // ---- 侧边栏宽度探测：宠物默认位锚定「左下角、贴着侧边栏右边」 ----
+    // DSH 三栏 AppFrame 是 grid：首列即侧边栏列（默认 280，可拖 264–420，收起为 56 栏）。
+    // 用稳定结构定位（frame 内的 [data-shell-overlay] 与其父级的首个 grid 子项），不依赖 hash 化 class；
+    // 首次读取做一次 DOM 实测，之后走缓存；只接受合理宽度区间（56–420），布局未就绪/过渡中间值/误抓列一律回退默认 280。
+    var SIDEBAR_DEFAULT = 280;
+    var cachedSidebarWidth = null;
+    function measureSidebarWidth() {
+      if (cachedSidebarWidth != null) return cachedSidebarWidth;
+      try {
+        var layer = document.querySelector("[data-shell-overlay]");
+        var frame = layer && layer.parentElement;
+        var col = frame && frame.firstElementChild;
+        if (col) {
+          var w = col.getBoundingClientRect().width;
+          if (w >= 56 && w <= 420) { cachedSidebarWidth = w; return w; }
+        }
+      } catch (e) {}
+      cachedSidebarWidth = SIDEBAR_DEFAULT;
+      return cachedSidebarWidth;
+    }
+
     // 构建帧序列：[[frameIndex, ms], ...]（帧索引 = 行×列数 + 列）
     function buildFrames(anim, columns) {
       var list = [];
@@ -278,7 +299,7 @@ window.__ModuleLoader__.load({
       var pos = _p[0];
       var setPos = _p[1];
 
-      // 缩放后若宠物越出视口，钳制回屏并回写偏好（保持 left/top 锚点；默认右下角定位随宽高自然向左上生长，无需钳制）
+      // 缩放后若宠物越出视口，钳制回屏并回写偏好（保持 left/top 锚点；默认左下角定位贴侧边栏、随缩放向右下生长，无需钳制）
       useEffect(function () {
         if (pos.x == null || pos.y == null) return;
         var cx = Math.min(Math.max(pos.x, 0), Math.max(0, window.innerWidth - w));
@@ -290,11 +311,12 @@ window.__ModuleLoader__.load({
       }, [w, h]);
 
       var isIdle = anim === "idle";
-      // 默认（未拖拽过）时右下角锚定 (24,24)，随缩放向左上生长；拖拽后走持久化 left/top
+      // 默认（未拖拽过）时左下角锚定：紧贴侧边栏右边（实测宽度 + 16px 间距）、底部留 24px；
+      // 拖拽后走持久化 left/top
       var effX, effY;
       if (pos.x != null && pos.y != null) { effX = pos.x; effY = pos.y; }
       else {
-        effX = Math.max(0, window.innerWidth - 24 - w);
+        effX = Math.max(0, measureSidebarWidth() + 16);
         effY = Math.max(0, window.innerHeight - 24 - h);
       }
       var baseStyle = {
@@ -376,11 +398,18 @@ window.__ModuleLoader__.load({
         return onScaleChange(setScaleState);
       }, []);
 
+      // 窗口/布局缩放时作废旧侧边栏宽度缓存，默认位下一帧重测（侧边栏收起/展开/拖宽、窗口 resize 均刷新）
+      useEffect(function () {
+        function onResize() { cachedSidebarWidth = null; }
+        window.addEventListener("resize", onResize);
+        return function () { window.removeEventListener("resize", onResize); };
+      }, []);
+
       if (state === "pet" && pet) return react.createElement(PetPlayer, { pet: pet, sessions: sessions, scale: scale });
       if (state === "empty") {
         return react.createElement("div", {
           style: {
-            position: "fixed", right: 16, bottom: 16, zIndex: 9999, pointerEvents: "auto",
+            position: "fixed", left: measureSidebarWidth() + 16, bottom: 16, zIndex: 9999, pointerEvents: "auto",
             padding: "8px 12px", borderRadius: "12px", fontSize: "12px", lineHeight: "1.6",
             background: "var(--dsw-specific-menu, #ffffff)",
             color: "var(--dsw-alias-label-tertiary, #666)",

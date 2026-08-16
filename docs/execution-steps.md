@@ -2,7 +2,7 @@
 
 > 标准文件：执行步骤 · 状态：进行中
 > 当前：**M0–M5 全部完成并验证通过（含深/浅主题、重启持久化）——项目可交付/开源**；
-> M6（新需求）：设置中调整宠物大小（全局缩放，宿主侧持久化）——进行中
+> M6（设置中调整宠物大小）已完成；M7（宠物默认初始位置改为左下角·侧边栏边上）已完成并验证通过
 > 关联：技术设计 [technical-design.md](technical-design.md)（含 §6 开放项/§7 里程碑）
 
 ## 1. 当前状态
@@ -44,8 +44,8 @@
 - **关键工程点（后续里程碑复用）**：pnpm `file:` 依赖在 profile 内是**静态副本**，已替换为 junction（node_modules/dsh-codex-pet → packages/dsh-codex-pet），使 bundle 编辑即时生效；dsh-client-hmr 每 500ms 轮询，改 bundle 自动触发 rebuilt → 新 rev → 浏览器热更，**免重启**。
 - 验证：/api/pets/health 200 `{ok:true,phase:M1}`；boot 图 39 条目含 dsh-codex-pet；HMR rev c8f0dc87aa32 → 327d3caf7657（slots 写法修正已热更）。
 - 客户端遵循官方 slots 模式：`inject: ['slots']` + `ctx.slots.inject('shell.overlay', ...)`。
-- **剩余**：视觉确认右下角 🐱 dsh-pet 浮层（浏览器已热更；未开页面则刷新一次）。
-- 验收：页面右下角出现 🐱 dsh-pet 浮层（显示“M1 链路 OK”）；无控制台错误。
+- **剩余**：视觉确认左下角 🐱 dsh-pet 浮层（浏览器已热更；未开页面则刷新一次）。
+- 验收：页面左下角出现 🐱 dsh-pet 浮层（显示“M1 链路 OK”）；无控制台错误。
 
 ### M2 宿主半（✅ 完成并激活）
 - 实现：`packages/dsh-codex-pet/lib/pet-library.js`（PetLibrary 核心：zip 导入/校验/安全解析/URL 下载/激活）+ `lib/index.js`（7 条路由）+ `lib/vendor/fflate.mjs`（vendored 解压库，免新增 profile 依赖）。
@@ -79,8 +79,17 @@
 - 需求（用户确认）：全局统一大小；入口在现有「宠物图库」页顶部；控件为滑块 50%~200%（步进 5%，默认 100%）；单个全局值宿主侧持久化、跨重启保留；尺寸变化带平滑过渡。
 - 实现：
   - 宿主：`pet-library.js` 新增 `getScale/setScale`（`.prefs.json` 存 `{scale}`，校验 0.5–2.0）+ `index.js` 新增 `POST /api/pets/scale` 路由、`GET /api/pets` 返回体带 `scale`。
-  - 客户端：`PetPlayer` 缩放用 CSS `transform: scale()`（贴图保持自然尺寸、帧动画仍瞬切，仅 `transform` 过渡；修复了 width/height/background-size 过渡与 background-position 瞬跳不同步导致的横向抖动/串帧）；视觉尺寸做视口钳制（left/top 锚点，默认右下角锚定 (24,24)）；图库页顶部滑块实时预览（模块级 scale 共享状态推给浮层）+ 300ms 防抖写宿主；`petEvents` 事件桥联动。
+  - 客户端：`PetPlayer` 缩放用 CSS `transform: scale()`（贴图保持自然尺寸、帧动画仍瞬切，仅 `transform` 过渡；修复了 width/height/background-size 过渡与 background-position 瞬跳不同步导致的横向抖动/串帧）；视觉尺寸做视口钳制（left/top 锚点，默认左下角锚定——侧边栏边上）；图库页顶部滑块实时预览（模块级 scale 共享状态推给浮层）+ 300ms 防抖写宿主；`petEvents` 事件桥联动。
 - 验证：隔离测试更新（路由 7→8 + scale 用例）；node 语法校验；GUI 需重启一次后拖滑块看浮层实时缩放、放大后钳制、重启保留。
+
+### M7 宠物默认初始位置改为左下角（侧边栏边上）（✅ 已完成并验证通过）
+- 需求（用户确认）：宠物**初始化/未拖拽过**时的默认位置由右下角改为左下角——贴着侧边栏右边摆放。
+- 实现（`lib/client.js`，纯客户端）：
+  - 新增模块级 `measureSidebarWidth()`：按 DSH AppFrame 稳定结构实测侧边栏宽度（`[data-shell-overlay]` 父级的首个 grid 子项，默认 280、可拖 264–420、收起 56），首读 DOM 后走缓存，取不到回退 280。
+  - `PetOverlay` 新增 `resize` 监听，作废旧宽度缓存，下一帧重测（窗口缩放/侧边栏收起展开均生效）。
+  - `PetPlayer` 默认位（`pos` 为空）：`effX = 侧边栏实测宽度 + 16`，`effY = innerHeight - 24 - h`（底部留 24）；拖拽后仍走 `localStorage('dsh-pet:pos')` 持久化。
+  - 空状态提示气泡（“还没有宠物”）同步从右下角 `right:16` 改为左下角 `left: 侧边栏宽 + 16`。
+- 验证：node 语法校验通过；宿主测试 23+14 全 PASS（客户端改动不影响宿主）。GUI 验证：清空 `dsh-pet:pos`（或未拖拽过）刷新，宠物出现在左下角贴侧边栏；拖动后松手，刷新仍停在拖拽位置——**用户实测正常**。
 
 ## 4. 后续启动动作
 
@@ -94,6 +103,7 @@
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
+| v0.6 | 新需求 | M7 宠物默认初始位置改为左下角（侧边栏边上）：客户端实测侧边栏宽度锚定默认位 + 空状态提示同步左下角 |
 | v0.5 | 修复 | 导入兼容文件夹包裹 zip（含 `folder/` 目录条目），修复 EEXIST 写入失败；新增回归测试（核心 23 + 路由 14） |
 | v0.4 | 新需求 | M6 宠物大小调整：全局缩放（图库页滑块 50%~200%）+ 宿主 `.prefs.json` 持久化 + `POST /api/pets/scale` 路由 + 客户端统一缩放渲染/越界钳制/过渡动画 |
 | v0.3 | 开源定稿 | 删除样例精灵图素材（版权原因，不随仓库分发）；测试改用运行时合成 WebP（`scripts/synth-fixture.js`） |
