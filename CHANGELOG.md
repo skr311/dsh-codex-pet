@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+（暂无）
+
+## [0.3.0] - 2026-08-16
+
 ### 变更
 
 - 宠物**默认初始位置**由右下角改为**左下角（侧边栏边上）**：客户端按 DSH AppFrame 结构实测侧边栏宽度（默认 280，收起 56，可拖 264–420），默认位锚定 = 侧边栏宽 + 16px 间距、底部留 24px；未拖拽前按默认位展示，拖拽后仍走 `localStorage('dsh-pet:pos')` 持久化；空状态提示气泡同步左下角。窗口缩放/侧边栏收展时自动重测。
@@ -47,6 +51,7 @@
 - npm 包 `dsh-codex-pet@0.1.0` 已发布。
 - GitHub tag `v0.1.0` + Release。
 
+[0.3.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.3.0
 [0.2.2]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.2
 [0.2.1]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.1
 [0.2.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.0
