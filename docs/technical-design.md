@@ -187,7 +187,7 @@ ctx.slots.inject('settings.section', () => ctx.slots.register(
 ### 4.3 序列帧播放器 `PetPlayer.tsx`
 - 渲染对象：单张 WebP spritesheet（格式 A）。帧单元 192×208、8 列；帧索引 = 行×8+列；行 = 动画（行数按 [asset-spec.md](asset-spec.md) §5 策略：`frame.rows` → 高度推断 → 默认 9）。
 - 播放：单 `<img>` + `background-position` 切片，按**逐帧 ms 时长**推进（[asset-spec.md](asset-spec.md) §2.3），不依赖全局 fps；**隐藏或未启用时停止定时器**（省 CPU）。
-- **用户缩放**：全局 `scale`（默认 1.0）用 CSS `transform: scale()` 实现——贴图/帧切片保持自然尺寸（帧动画仍完美瞬切），仅 `transform` 带 0.18s 过渡，整个内容等比缩放。**注意不要**用 width/height/background-size 过渡（它们与瞬跳的 background-position 不同步会导致横向抖动/把相邻帧横着刷出来）。位置以视觉尺寸做视口钳制（left/top 锚点），默认右下角锚定 (24,24)。
+- **用户缩放**：全局 `scale`（默认 1.0）用 CSS `transform: scale()` 实现——贴图/帧切片保持自然尺寸（帧动画仍完美瞬切），仅 `transform` 带 0.18s 过渡，整个内容等比缩放。**注意不要**用 width/height/background-size 过渡（它们与瞬跳的 background-position 不同步会导致横向抖动/把相邻帧横着刷出来）。位置以视觉尺寸做视口钳制（left/top 锚点），默认**左下角**锚定——紧贴侧边栏右边（实测侧边栏宽度 + 16px 间距，底部留 24px）；侧边栏宽度按 AppFrame 结构实测（`[data-shell-overlay]` 父级的首个 grid 子项，默认 280、可拖 264–420、收起 56），首读 DOM 后走缓存，窗口 resize 时作废缓存重测，取不到回退 280。
 - 动画组切换：`usePetState` 输出语义状态 → 按 [asset-spec.md](asset-spec.md) §2.4 映射动画名（idle/running/waiting/review/failed/move/wave/jump）；缺失回退 idle。
 - 动作动画（非 idle）：按 §2.3 结构播放主序列 1-3 次后落回 idle。
 - 定时器一律走 client 的 timer 服务（`inject: ['timer']`），随生命周期清理，不产生全局定时器。
@@ -286,5 +286,6 @@ pet.zip
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
+| v0.3 | 需求变更 | 宠物默认初始位置由右下角改为左下角（侧边栏边上）：客户端按 AppFrame 结构实测侧边栏宽度（缓存 + resize 作废），默认位 = 侧边栏宽 + 16px 间距、底部 24px；空状态提示气泡同步左下角 |
 | v0.2 | 需求变更 | 新增全局宠物大小设置：宿主 `.prefs.json` + `POST /api/pets/scale`、客户端统一缩放渲染 + 越界钳制 + 过渡动画 |
 | v0.1 | 文档整理 | 初版：双半架构、宿主/客户端设计、路由、状态联动 |
