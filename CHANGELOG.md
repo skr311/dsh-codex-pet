@@ -6,6 +6,14 @@
 
 （暂无）
 
+## [0.3.1] - 2026-09-21
+
+### 兼容性
+
+- 补充 DSH 兼容范围与精确版本矩阵：`0.1.5-rc.2` 标记为 `compatible`，`0.1.6-alpha.1`、`0.1.6-alpha.2` 标记为 `unknown`。
+- 当前兼容结论基于插件在 DSH `0.1.5-rc.2` 上的实际运行结果。
+- 本次不涉及运行时代码或功能行为变更。
+
 ## [0.3.0] - 2026-08-16
 
 ### 变更
@@ -71,6 +79,7 @@
 - npm 包 `dsh-codex-pet@0.1.0` 已发布。
 - GitHub tag `v0.1.0` + Release。
 
+[0.3.1]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.3.1
 [0.3.0]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.3.0
 [0.2.2]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.2
 [0.2.1]: https://github.com/skr311/dsh-codex-pet/releases/tag/v0.2.1

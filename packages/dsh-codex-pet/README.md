@@ -10,6 +10,12 @@ dsh plugin --profile web add dsh-codex-pet
 
 Then restart the DSH Web GUI (host-side change) and refresh the page. Upload your own pet zip (see the asset format below) in **Settings → Pet Library**.
 
+## Compatibility
+
+- Node.js: `>=20`
+- Confirmed compatible DSH release: `0.1.5-rc.2`
+- See `dsh.compatibility.dshReleases` in `package.json` for exact per-release status.
+
 ## Features
 
 - Sprite-sheet (Format A) sequence playback: per-frame ms timing, row = animation.

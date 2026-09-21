@@ -52,6 +52,12 @@ dsh plugin --profile web add ./packages/dsh-codex-pet
 
 安装后**重启 DSH Web GUI**（宿主半改动需重启；客户端 bundle 改完热更免重启），再刷新页面。
 
+## ✅ 兼容性
+
+- Node.js：`>=20`
+- 已确认兼容的 DSH 版本：`0.1.5-rc.2`
+- 其他 DSH 版本的精确兼容状态见 [`package.json`](packages/dsh-codex-pet/package.json) 中的 `dsh.compatibility.dshReleases`。
+
 ## 🛠️ 开发
 
 - **项目结构**：`packages/dsh-codex-pet/`（宿主半 `lib/index.js` + `pet-library.js`；客户端半 `lib/client.js`；vendored `lib/vendor/fflate.mjs`）。

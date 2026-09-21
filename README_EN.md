@@ -52,6 +52,12 @@ dsh plugin --profile web add ./packages/dsh-codex-pet
 
 After installing, **restart the DSH Web GUI** (host-side changes need a restart; client bundles hot-reload), then refresh the page.
 
+## ✅ Compatibility
+
+- Node.js: `>=20`
+- Confirmed compatible DSH release: `0.1.5-rc.2`
+- See `dsh.compatibility.dshReleases` in [`package.json`](packages/dsh-codex-pet/package.json) for exact per-release status.
+
 ## 🛠️ Development
 
 - **Layout** — `packages/dsh-codex-pet/` (host half `lib/index.js` + `pet-library.js`; client half `lib/client.js`; vendored `lib/vendor/fflate.mjs`).

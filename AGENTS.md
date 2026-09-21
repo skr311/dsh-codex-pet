@@ -40,7 +40,7 @@ dsh-codex-pet：DeepSeek Harness（DSH）桌面宠物插件。导入/上传 code
 ## 当前状态与下一步
 
 - 已完成：M0 资产格式定稿（asset-spec v1.3）、M1 插件骨架/安装/激活、M2 宿主半（pet-library + 7 路由 + vendored fflate）、M3 PetPlayer（样例宠物渲染确认）、M4 图库管理页（settings.section + 事件桥联动）、M5 Agent 状态联动（sessions.list 快照 + 常驻/脉冲模型）+ 开源清理（样例更名 sample-pet、私有路径泛化）。
-- **当前状态**：**M0–M5 全部完成并验证通过（深/浅主题、重启持久化均确认）——项目可交付/开源。** M6（宠物大小滑块）已完成；M7（宠物默认初始位置改为左下角·侧边栏边上）已完成并验证通过。
+- **当前状态**：**M0–M5 全部完成并验证通过（深/浅主题、重启持久化均确认）——项目可交付/开源。** M6（宠物大小滑块）已完成；M7（宠物默认初始位置改为左下角·侧边栏边上）已完成并验证通过；M8（DSH STORE 精确兼容声明，插件 v0.3.1）已完成。
 - 推进方式：按 [docs/execution-steps.md](docs/execution-steps.md) 继续；**客户端 bundle 改完即热更（junction + dsh-client-hmr），免重启**；宿主/插件集变更需重启 GUI（见工作约定 3）。
 
 ## 命令速查
@@ -63,4 +63,5 @@ path/to/dsh-install\node_modules\@deepseek-ai\dsh
 
 | 版本 | 日期 | 说明 |
 | --- | --- | --- |
+| v0.2 | 2026-09-21 | 记录 M8 DSH STORE 精确兼容声明与插件 v0.3.1 |
 | v0.1 | 文档整理 | 初版：标准文件索引 + 工作约定 |
